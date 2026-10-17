@@ -1,2 +1,1 @@
-// Заполняется после создания Firebase Realtime Database
-window.DI_FIREBASE_CONFIG=null;
+window.DI_FIREBASE_CONFIG={databaseURL:"https://di-galina-default-rtdb.firebaseio.com"};

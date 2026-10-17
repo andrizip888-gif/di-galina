@@ -12,118 +12,155 @@
 <body>
 <title>Стажировка DI: Галина</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Vollkorn:wght@600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,600;0,700;1,500&display=swap">
 <style>
-/* Layout: one column tracker, sticky header with progress, tab bar; module cards as a vertical route with milestones. */
+/* Layout: warm one-column tracker; gradient hero with progress ring, "next step" card, module route with step dots, soft cards. */
 :root{
-  --bg:#f2f5f4; --surface:#ffffff; --surface-2:#e8eeec; --fg:#15211f; --muted:#5b6b68; --line:#cfd9d6;
-  --accent:#0d6f69; --accent-fg:#ffffff; --accent-soft:#d6ebe8;
-  --ok:#1f7a3e; --ok-soft:#dbeedf; --warn:#9a6a00; --warn-soft:#f6ecd0; --bad:#a3342c; --bad-soft:#f5dcd9;
-  --display:"Vollkorn",Georgia,serif; --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
-  --radius:10px;
+  --bg:#fbf6f3; --surface:#ffffff; --surface-2:#f6ece8; --fg:#2b2227; --muted:#7a6b72; --line:#ecdcd6;
+  --accent:#c9566b; --accent-2:#2f8f87; --accent-fg:#ffffff; --accent-soft:#fbe4e8; --accent2-soft:#dcefed;
+  --ok:#2e8b57; --ok-soft:#dff2e6; --warn:#b4731a; --warn-soft:#fbeedc; --bad:#b63a3a; --bad-soft:#f9dede;
+  --hero:linear-gradient(135deg,#f7d9df 0%,#fbe9e1 45%,#d9efec 100%);
+  --display:"Cormorant Garamond","Times New Roman",serif; --body:"Manrope",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --radius:16px; --shadow:0 10px 30px rgba(120,70,80,.08);
 }
 @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
-  --bg:#0f1716; --surface:#172220; --surface-2:#1f2d2a; --fg:#e7eeec; --muted:#9fb0ac; --line:#2e3e3a;
-  --accent:#4fb9b0; --accent-fg:#0b1413; --accent-soft:#17403c;
-  --ok:#6fcf8a; --ok-soft:#173d26; --warn:#e6b84a; --warn-soft:#3d3010; --bad:#f08a80; --bad-soft:#4a211d;
+  --bg:#1a1417; --surface:#241c20; --surface-2:#2e2429; --fg:#f3e9ec; --muted:#b39aa4; --line:#3b2f35;
+  --accent:#e98a9c; --accent-2:#6fc4bb; --accent-fg:#1a1417; --accent-soft:#3d2630; --accent2-soft:#1f3b38;
+  --ok:#7fd49b; --ok-soft:#1e3a2a; --warn:#e8b25e; --warn-soft:#3d2f17; --bad:#f08a80; --bad-soft:#4a211d;
+  --hero:linear-gradient(135deg,#3a2430 0%,#2a1f26 50%,#1f3634 100%); --shadow:0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark }}
 :root[data-theme="dark"]{
-  --bg:#0f1716; --surface:#172220; --surface-2:#1f2d2a; --fg:#e7eeec; --muted:#9fb0ac; --line:#2e3e3a;
-  --accent:#4fb9b0; --accent-fg:#0b1413; --accent-soft:#17403c;
-  --ok:#6fcf8a; --ok-soft:#173d26; --warn:#e6b84a; --warn-soft:#3d3010; --bad:#f08a80; --bad-soft:#4a211d;
+  --bg:#1a1417; --surface:#241c20; --surface-2:#2e2429; --fg:#f3e9ec; --muted:#b39aa4; --line:#3b2f35;
+  --accent:#e98a9c; --accent-2:#6fc4bb; --accent-fg:#1a1417; --accent-soft:#3d2630; --accent2-soft:#1f3b38;
+  --ok:#7fd49b; --ok-soft:#1e3a2a; --warn:#e8b25e; --warn-soft:#3d2f17; --bad:#f08a80; --bad-soft:#4a211d;
+  --hero:linear-gradient(135deg,#3a2430 0%,#2a1f26 50%,#1f3634 100%); --shadow:0 10px 30px rgba(0,0,0,.35);
   color-scheme:dark }
 *{box-sizing:border-box}
-body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
-body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
-.wrap{max-width:1000px;margin:0 auto}
-h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
-h1{font-size:1.9rem;font-weight:700}
-h2{font-size:1.35rem;font-weight:700}
-h3{font-size:1.1rem;font-weight:600}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.55;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 56px}
+.wrap{max-width:980px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.15}
+h1{font-size:2.5rem;font-weight:600;letter-spacing:-.01em}
+h2{font-size:1.55rem;font-weight:600}
+h3{font-size:1.25rem;font-weight:600}
 p{margin:0}
-a{color:var(--accent)}
+a{color:var(--accent-2)}
 button{font:inherit;cursor:pointer}
-.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 12px;border-radius:8px;font-weight:500}
-.btn:hover{border-color:var(--accent)}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:8px 14px;border-radius:999px;font-weight:600;transition:transform .12s,box-shadow .12s,border-color .12s}
+.btn:hover{border-color:var(--accent);transform:translateY(-1px);box-shadow:0 4px 14px rgba(201,86,107,.15)}
+.btn:active{transform:translateY(0)}
 .btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
-.btn.small{padding:4px 9px;font-size:.85rem}
-.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
-.toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.eyebrow{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
-.sync{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.btn.small{padding:5px 11px;font-size:.84rem}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible{outline:2px solid var(--accent-2);outline-offset:2px}
+header.top{margin-top:14px;background:var(--hero);border-radius:22px;padding:22px 22px 14px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:14px;position:relative;overflow:hidden}
+header.top::after{content:"";position:absolute;z-index:0;right:-60px;top:-60px;width:220px;height:220px;border-radius:50%;background:radial-gradient(circle,rgba(255,255,255,.55),rgba(255,255,255,0) 70%);pointer-events:none}
+.toprow{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap}
+.eyebrow{font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+.hello{font-family:var(--display);font-style:italic;font-size:1.1rem;color:var(--muted);margin-top:4px}
+.ring{position:relative;width:96px;height:96px;flex:none}
+.ring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:8;stroke-linecap:round}
+.ring .track{stroke:rgba(255,255,255,.55)}
+:root[data-theme="dark"] .ring .track{stroke:rgba(255,255,255,.12)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .ring .track{stroke:rgba(255,255,255,.12)}}
+.ring .fill{stroke:var(--accent);stroke-dasharray:263;stroke-dashoffset:263;transition:stroke-dashoffset .8s cubic-bezier(.2,.8,.2,1)}
+.ring .rnum{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:1.6rem;font-weight:700;font-variant-numeric:tabular-nums}
+.ring .rnum small{display:block;font-family:var(--body);font-size:.6rem;color:var(--muted);text-align:center;font-weight:600;letter-spacing:.05em}
+.sync{font-size:.78rem;color:var(--muted);display:flex;align-items:center;gap:6px}
 .sync .dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
-.sync.ok .dot{background:var(--ok)}
+.sync.ok .dot{background:var(--ok);box-shadow:0 0 0 4px rgba(46,139,87,.15)}
 .sync.bad .dot{background:var(--bad)}
-.progress{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
-.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
-.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
-.stats{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
-.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
-.tab{border:0;background:transparent;color:var(--muted);padding:8px 12px;border-radius:8px;font-weight:600;white-space:nowrap}
-.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--fg)}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;background:rgba(255,255,255,.45);padding:4px;border-radius:999px;width:max-content;max-width:100%}
+:root[data-theme="dark"] .tabs{background:rgba(255,255,255,.06)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tabs{background:rgba(255,255,255,.06)}}
+.tab{border:0;background:transparent;color:var(--muted);padding:8px 14px;border-radius:999px;font-weight:700;white-space:nowrap;transition:background .15s,color .15s}
+.tab[aria-selected="true"]{background:var(--surface);color:var(--fg);box-shadow:0 2px 8px rgba(0,0,0,.06)}
 main{padding-block:20px}
 section[hidden]{display:none}
-.panel{display:flex;flex-direction:column;gap:18px}
-.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
-.notice{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:6px;font-size:.9rem}
+.panel{display:flex;flex-direction:column;gap:18px;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:18px 20px;box-shadow:var(--shadow)}
+.next{display:grid;grid-template-columns:auto 1fr;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:14px 18px;box-shadow:var(--shadow)}
+.next .ico{width:44px;height:44px;border-radius:14px;background:var(--accent-soft);display:grid;place-items:center;color:var(--accent);font-family:var(--display);font-size:1.4rem;font-weight:700}
+.next b{display:block;font-family:var(--display);font-size:1.2rem}
+.next span{color:var(--muted);font-size:.9rem}
+.notice{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:8px;font-size:.9rem}
 .notice.bad{border-color:var(--bad);background:var(--bad-soft)}
-.notice.ok{border-color:var(--ok);background:var(--ok-soft)}
 .route{display:flex;flex-direction:column;gap:12px}
-.milestone{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--muted);font-size:.92rem}
-.milestone b{color:var(--fg)}
-.milestone input{margin-left:auto}
-.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
-.mod>summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.milestone{display:flex;align-items:center;gap:12px;padding:12px 18px;border:1px dashed var(--accent-2);border-radius:var(--radius);color:var(--muted);font-size:.92rem;background:var(--accent2-soft)}
+.milestone b{color:var(--fg);font-family:var(--display);font-size:1.1rem}
+.milestone label{margin-left:auto;display:flex;gap:6px;align-items:center;white-space:nowrap}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);transition:transform .15s,box-shadow .15s}
+.mod:hover{transform:translateY(-1px)}
+.mod[data-status="done"]{border-color:var(--ok)}
+.mod>summary{list-style:none;cursor:pointer;padding:16px 18px;display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center}
 .mod>summary::-webkit-details-marker{display:none}
-.num{font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--accent);min-width:34px}
-.mod .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.num{width:44px;height:44px;border-radius:14px;display:grid;place-items:center;font-family:var(--display);font-size:1.35rem;font-weight:700;color:var(--accent);background:var(--accent-soft);flex:none}
+.mod[data-status="done"] .num{background:var(--ok-soft);color:var(--ok)}
+.mod .t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.mod .t .name{font-weight:700;font-size:1.02rem}
 .mod .t small{color:var(--muted);font-size:.82rem}
-.pill{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.dots{display:flex;gap:4px;margin-top:3px}
+.dots i{width:18px;height:5px;border-radius:3px;background:var(--surface-2)}
+.dots i.on{background:var(--accent)}
+.mod[data-status="done"] .dots i.on{background:var(--ok)}
+.pill{font-size:.74rem;font-weight:700;padding:4px 10px;border-radius:999px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
 .pill.work{background:var(--warn-soft);color:var(--warn)}
 .pill.done{background:var(--ok-soft);color:var(--ok)}
-.mod .body{padding:4px 16px 16px;display:grid;gap:14px;border-top:1px solid var(--line)}
+.mod .body{padding:4px 18px 18px;display:grid;gap:16px;border-top:1px solid var(--line);animation:fade .25s ease}
 .row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-code.cmd{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);padding:2px 7px;border-radius:5px;font-size:.88rem}
+code.cmd{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);padding:2px 8px;border-radius:6px;font-size:.86rem}
 .steps{display:grid;gap:6px}
-.step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:7px 8px;border-radius:7px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:9px 10px;border-radius:10px;transition:background .15s}
+.step:hover{background:var(--surface-2)}
 .step:has(input:checked){background:var(--ok-soft)}
-.step input{margin-top:3px;width:17px;height:17px}
+.step:has(input:checked) span{text-decoration:line-through;text-decoration-color:rgba(46,139,87,.5);color:var(--muted)}
+.step input{margin-top:3px;width:18px;height:18px;accent-color:var(--accent)}
 .step .n{color:var(--muted);font-size:.8rem}
-ul.plain{margin:0;padding-left:18px;display:grid;gap:4px}
-label.f{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
-input[type=text],input[type=date],input[type=number],select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;min-width:0}
-textarea{min-height:90px;resize:vertical}
+ul.plain{margin:0;padding-left:18px;display:grid;gap:5px}
+label.f{display:grid;gap:4px;font-size:.84rem;color:var(--muted)}
+input[type=text],input[type=date],input[type=number],select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:8px 10px;width:100%;min-width:0}
+input[type=checkbox]{accent-color:var(--accent)}
+textarea{min-height:100px;resize:vertical}
 .grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
-.kpi{background:var(--surface-2);border-radius:8px;padding:12px}
-.kpi b{display:block;font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums}
+.kpi{background:var(--surface-2);border-radius:14px;padding:14px;position:relative;overflow:hidden}
+.kpi b{display:block;font-family:var(--display);font-size:2rem;font-variant-numeric:tabular-nums;line-height:1}
 .kpi span{font-size:.8rem;color:var(--muted)}
-.kpi.ok{outline:2px solid var(--ok)}
+.kpi .meter{height:5px;border-radius:3px;background:var(--line);margin-top:8px;overflow:hidden}
+.kpi .meter i{display:block;height:100%;background:var(--accent);width:0;transition:width .5s}
+.kpi.ok{background:var(--ok-soft)}
+.kpi.ok .meter i{background:var(--ok)}
 .tablewrap{overflow-x:auto}
 table{border-collapse:collapse;width:100%;font-size:.88rem}
-th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
-th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
 td.num{font-variant-numeric:tabular-nums;text-align:right}
 .timer{display:grid;gap:12px;justify-items:center;text-align:center}
-.timer .big{font-family:var(--display);font-size:4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
-.timer .big.alarm{color:var(--bad)}
-.timer .big.warn{color:var(--warn)}
-ol.setup{margin:0;padding-left:20px;display:grid;gap:12px}
-ol.setup li{padding-left:4px}
+.tring{position:relative;width:170px;height:170px}
+.tring svg{width:100%;height:100%;transform:rotate(-90deg)}
+.tring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.tring .track{stroke:var(--surface-2)}
+.tring .fill{stroke:var(--accent-2);stroke-dasharray:471;stroke-dashoffset:0;transition:stroke-dashoffset .2s linear,stroke .3s}
+.tring .fill.warn{stroke:var(--warn)}.tring .fill.alarm{stroke:var(--bad)}
+.tring .big{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--display);font-size:3rem;font-weight:700;font-variant-numeric:tabular-nums}
+.tring .big.alarm{color:var(--bad)}.tring .big.warn{color:var(--warn)}
+ol.setup{margin:0;padding-left:0;list-style:none;display:grid;gap:12px;counter-reset:s}
+ol.setup li{display:grid;grid-template-columns:auto 1fr;gap:12px;counter-increment:s}
+ol.setup li::before{content:counter(s);width:32px;height:32px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-family:var(--display);font-weight:700;font-size:1.1rem}
 ol.setup li b{display:block}
-.copybox{position:relative;background:var(--surface-2);border-radius:8px;padding:12px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:.85rem;line-height:1.45}
-.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.copybox{position:relative;background:var(--surface-2);border-radius:12px;padding:12px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:.85rem;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:10px 16px;border-radius:999px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
 .toast.show{opacity:1}
 .muted{color:var(--muted);font-size:.88rem}
 .cardbox{display:grid;gap:8px}
-details.sub>summary{cursor:pointer;font-weight:600;list-style:none}
+details.sub>summary{cursor:pointer;font-weight:700;list-style:none}
 details.sub>summary::-webkit-details-marker{display:none}
 details.sub>summary::before{content:"▸ ";color:var(--muted)}
 details.sub[open]>summary::before{content:"▾ "}
-@media (prefers-reduced-motion: reduce){.bar>i{transition:none}}
-@media (max-width:520px){h1{font-size:1.5rem}.mod>summary{grid-template-columns:auto 1fr;}.mod>summary .pill{grid-column:2}}
+canvas#confetti{position:fixed;inset:0;pointer-events:none;z-index:30}
+@media (prefers-reduced-motion: reduce){*{transition:none!important;animation:none!important}}
+@media (max-width:520px){h1{font-size:1.9rem}header.top{padding:18px 16px 12px}.mod>summary{grid-template-columns:auto 1fr}.mod>summary .pill{grid-column:2;justify-self:start}}
 </style>
 
 <div class="wrap">
@@ -132,20 +169,20 @@ details.sub[open]>summary::before{content:"▾ "}
     <div>
       <div class="eyebrow">DI Phuket Property · стажировка брокера</div>
       <h1>Стажировка DI: Галина</h1>
+      <div class="hello" id="hello">Начнём с настройки тренера</div>
     </div>
+    <div class="ring" aria-label="Прогресс"><svg viewBox="0 0 96 96"><circle class="track" cx="48" cy="48" r="42"></circle><circle class="fill" id="ringFill" cx="48" cy="48" r="42"></circle></svg><div class="rnum"><div><span id="ringNum">0</span><small>из 11</small></div></div></div>
+  </div>
+  <div class="toprow">
+    <nav class="tabs" role="tablist" id="tabs">
+      <button class="tab" role="tab" data-tab="route" aria-selected="true">Маршрут</button>
+      <button class="tab" role="tab" data-tab="journal" aria-selected="false">Журнал</button>
+      <button class="tab" role="tab" data-tab="timers" aria-selected="false">Таймеры</button>
+      <button class="tab" role="tab" data-tab="setup" aria-selected="false">Настройка</button>
+      <button class="tab" role="tab" data-tab="help" aria-selected="false">Если сбился</button>
+    </nav>
     <div class="sync" id="sync"><span class="dot"></span><span id="syncText">Подключение…</span></div>
   </div>
-  <div class="progress">
-    <div class="bar"><i id="barFill"></i></div>
-    <div class="stats" id="stats">0 из 11 модулей</div>
-  </div>
-  <nav class="tabs" role="tablist" id="tabs">
-    <button class="tab" role="tab" data-tab="route" aria-selected="true">Маршрут</button>
-    <button class="tab" role="tab" data-tab="journal" aria-selected="false">Журнал практики</button>
-    <button class="tab" role="tab" data-tab="timers" aria-selected="false">Таймеры</button>
-    <button class="tab" role="tab" data-tab="setup" aria-selected="false">Настройка</button>
-    <button class="tab" role="tab" data-tab="help" aria-selected="false">Если сбился</button>
-  </nav>
 </header>
 
 <main>
@@ -160,6 +197,7 @@ details.sub[open]>summary::before{content:"▾ "}
       <label class="f">Дата аттестации<input type="date" id="dCert"></label>
     </div>
   </div>
+  <div class="next" id="next"><div class="ico">→</div><div><b id="nextTitle">Модуль 0</b><span id="nextText"></span></div></div>
   <div class="route" id="route"></div>
 </section>
 
@@ -168,9 +206,9 @@ details.sub[open]>summary::before{content:"▾ "}
     <h2>Журнал практики с AI</h2>
     <p class="muted" style="margin-top:6px">До первого Zoom нужно не меньше 2 часов практики и 3 полных кейса ресторана. После каждой сессии добавь строку: минуты и баллы тебе называет тренер (команда ЖУРНАЛ).</p>
     <div class="grid3" style="margin-top:12px">
-      <div class="kpi" id="kHours"><b>0,0</b><span>часов практики (нужно ≥ 2)</span></div>
-      <div class="kpi" id="kCases"><b>0</b><span>полных кейсов ресторана (нужно ≥ 3)</span></div>
-      <div class="kpi" id="kRe"><b>0</b><span>кейсов недвижимости</span></div>
+      <div class="kpi" id="kHours"><b>0,0</b><span>часов практики, нужно 2</span><div class="meter"><i></i></div></div>
+      <div class="kpi" id="kCases"><b>0</b><span>кейсов ресторана, нужно 3</span><div class="meter"><i></i></div></div>
+      <div class="kpi" id="kRe"><b>0</b><span>кейсов недвижимости</span><div class="meter"><i></i></div></div>
     </div>
   </div>
   <div class="card">
@@ -205,14 +243,14 @@ details.sub[open]>summary::before{content:"▾ "}
   <div class="grid2">
     <div class="card timer">
       <h3>30 секунд на контакт</h3>
-      <div class="big" id="t30">30</div>
+      <div class="tring"><svg viewBox="0 0 170 170"><circle class="track" cx="85" cy="85" r="75"></circle><circle class="fill" id="t30Fill" cx="85" cy="85" r="75"></circle></svg><div class="big" id="t30">30</div></div>
       <p class="muted">Кадр появился: старт. Своё время впиши в конце реплики, например «(18 сек)».</p>
       <div class="row"><button class="btn primary" id="t30Start">Старт</button><button class="btn" id="t30Reset">Сброс</button></div>
       <p class="muted" id="t30Last"></p>
     </div>
     <div class="card timer">
       <h3>Секундомер сессии</h3>
-      <div class="big" id="tSess">00:00</div>
+      <div class="tring"><svg viewBox="0 0 170 170"><circle class="track" cx="85" cy="85" r="75"></circle><circle class="fill" id="tsFill" cx="85" cy="85" r="75" style="stroke-dashoffset:471"></circle></svg><div class="big" id="tSess" style="font-size:2.3rem">00:00</div></div>
       <p class="muted">Запускай на всю сессию с тренером. В конце сделай скриншот для блока 7 тетради.</p>
       <div class="row"><button class="btn primary" id="tsStart">Старт</button><button class="btn" id="tsPause">Пауза</button><button class="btn" id="tsReset">Сброс</button><button class="btn" id="tsToJournal">Минуты в журнал</button></div>
     </div>
@@ -255,6 +293,7 @@ details.sub[open]>summary::before{content:"▾ "}
 </main>
 </div>
 <div class="toast" id="toast"></div>
+<canvas id="confetti" hidden></canvas>
 
 <script type="text/plain" id="prompt-text">
 Ты AI-тренер стажёра-брокера компании DI Phuket Property (премиальная недвижимость на Пхукете). Стажёр: Галина. Твоя задача: провести её через всю программу стажировки по файлу «DI_Тренер_Опорный_документ» в этом проекте, чтобы на живых Zoom с наставником и на аттестации она уверенно и своими словами показывала стандарт компании. Говори только по-русски.
@@ -356,7 +395,8 @@ function renderRoute(){
   for(const m of MODULES){
     if(m.milestone){const chk=!!state.milestones[m.id];html+=`<div class="milestone"><b>${esc(m.title)}</b><span>${esc(m.hint)}</span><label style="margin-left:auto;display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-ms="${m.id}" ${chk?"checked":""}> прошёл</label></div>`;continue}
     const [label,cls]=modStatus(m);const ms=state.modules[m.id]||{};const steps=ms.steps||[];
-    html+=`<details class="mod" data-id="${m.id}" ${open.has(m.id)?"open":""}><summary><span class="num">${m.n}</span><span class="t"><span>${esc(m.title)}</span><small>${esc(m.time)} · команда <code class="cmd">${esc(m.cmd)}</code></small></span><span class="pill ${cls}">${label}</span></summary>
+    const dots=m.steps.map((_,i)=>`<i class="${steps[i]?"on":""}"></i>`).join("");
+    html+=`<details class="mod" data-id="${m.id}" data-status="${cls||"none"}" ${open.has(m.id)?"open":""}><summary><span class="num">${cls==="done"?"✓":m.n}</span><span class="t"><span class="name">${esc(m.title)}</span><small>${esc(m.time)} · команда <code class="cmd">${esc(m.cmd)}</code></small><span class="dots">${dots}</span></span><span class="pill ${cls}">${label}</span></summary>
     <div class="body">
       <p>${esc(m.goal)}</p>
       <div class="row"><button class="btn small" data-copy="${esc(m.cmd)}">Скопировать «${esc(m.cmd)}»</button>${m.exam?`<button class="btn small" data-copy="${esc(m.exam)}">Скопировать «${esc(m.exam)}»</button>`:""}</div>
@@ -369,8 +409,12 @@ function renderRoute(){
     </div></details>`;
   }
   r.innerHTML=html;
-  const total=MODULES.filter(m=>!m.milestone).length;const done=MODULES.filter(m=>!m.milestone&&modStatus(m)[0]==="Сдан").length;
-  $("#barFill").style.width=Math.round(done/total*100)+"%";$("#stats").textContent=done+" из "+total+" модулей";
+  const mods=MODULES.filter(m=>!m.milestone);const total=mods.length;const doneList=mods.filter(m=>modStatus(m)[0]==="Сдан");const done=doneList.length;
+  $("#ringFill").style.strokeDashoffset=263-263*done/total;$("#ringNum").textContent=done;
+  const cur=mods.find(m=>modStatus(m)[0]!=="Сдан");
+  if(cur){const st=(state.modules[cur.id]||{}).steps||[];const si=cur.steps.findIndex((s,i)=>!st[i]);$("#nextTitle").textContent=(cur.n==="X"?"Модуль X":"Модуль "+cur.n)+" · "+cur.title;$("#nextText").textContent=si>=0?"Следующий шаг: "+cur.steps[si]:"Отметь оставшиеся шаги";$("#hello").textContent=done===0?"Начнём с настройки тренера":done<5?"Хороший темп, продолжаем":done<8?"Больше половины позади":"Финишная прямая"}
+  else{$("#nextTitle").textContent="Все модули сданы";$("#nextText").textContent="Поздравляю, маршрут пройден";$("#hello").textContent="Маршрут пройден"}
+  const doneIds=new Set(doneList.map(m=>m.id));if(renderRoute.prev){for(const id of doneIds)if(!renderRoute.prev.has(id))confetti()}renderRoute.prev=doneIds;
   $("#dFirst").value=state.dates.first||"";$("#dCert").value=state.dates.cert||"";
 }
 $("#route").addEventListener("change",e=>{
@@ -387,6 +431,9 @@ let cardTimers={};
 $("#route").addEventListener("input",e=>{const t=e.target;if(!t.dataset.card)return;const id=t.dataset.card;state.cards[id]=t.value;clearTimeout(cardTimers[id]);cardTimers[id]=setTimeout(()=>{saveState();const s=document.querySelector(`[data-cardsaved="${id}"]`);if(s){s.textContent="сохранено";setTimeout(()=>s.textContent="",1500)}},700)});
 for(const [id,key] of [["dFirst","first"],["dCert","cert"]]) $("#"+id).addEventListener("change",e=>{state.dates[key]=e.target.value;saveState()});
 
+/* ---------- confetti ---------- */
+function confetti(){if(matchMedia("(prefers-reduced-motion: reduce)").matches)return;const c=$("#confetti");c.hidden=false;c.width=innerWidth;c.height=innerHeight;const ctx=c.getContext("2d");const cols=["#c9566b","#2f8f87","#f2b5c0","#f6d365","#9ad0c8"];const ps=Array.from({length:140},()=>({x:innerWidth/2+(Math.random()-.5)*200,y:innerHeight*.35,vx:(Math.random()-.5)*14,vy:-Math.random()*12-4,r:4+Math.random()*5,c:cols[Math.random()*cols.length|0],a:Math.random()*Math.PI,s:(Math.random()-.5)*.3}));let t=0;(function f(){ctx.clearRect(0,0,c.width,c.height);for(const p of ps){p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.a+=p.s;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.a);ctx.fillStyle=p.c;ctx.fillRect(-p.r/2,-p.r/2,p.r,p.r*.6);ctx.restore()}if(++t<110)requestAnimationFrame(f);else{ctx.clearRect(0,0,c.width,c.height);c.hidden=true}})()}
+
 /* ---------- journal ---------- */
 const fmtH=m=>(m/60).toFixed(1).replace(".",",");
 function renderJournal(){
@@ -394,8 +441,9 @@ function renderJournal(){
   const mins=rows.reduce((s,r)=>s+(+r.min||0),0);
   const cases=rows.filter(r=>/^Ресторан, кейс/.test(r.type)&&r.status==="Готово").length;
   const re=rows.filter(r=>/^(Кейс недвижимости|Z1|Z2|Z3|Цепочка|Пробная)/.test(r.type)).length;
-  const kh=$("#kHours"),kc=$("#kCases");kh.querySelector("b").textContent=fmtH(mins);kc.querySelector("b").textContent=cases;$("#kRe b").textContent=re;
+  const kh=$("#kHours"),kc=$("#kCases"),kr=$("#kRe");kh.querySelector("b").textContent=fmtH(mins);kc.querySelector("b").textContent=cases;kr.querySelector("b").textContent=re;
   kh.classList.toggle("ok",mins>=120);kc.classList.toggle("ok",cases>=3);
+  kh.querySelector(".meter i").style.width=Math.min(100,mins/120*100)+"%";kc.querySelector(".meter i").style.width=Math.min(100,cases/3*100)+"%";kr.querySelector(".meter i").style.width=Math.min(100,re/3*100)+"%";
   const tb=$("#jBody");
   if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="muted">Пока пусто. Первая строка появится после первой сессии с тренером.</td></tr>';return}
   tb.innerHTML=rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.focus)}</td><td class="num">${esc(r.min)}</td><td>${esc(r.before)}</td><td>${esc(r.after)}</td><td style="word-break:break-all">${esc(r.link)}</td><td>${esc(r.status)}</td><td><button class="btn small" data-del="${r.id}" title="Удалить">×</button></td></tr>`).join("");
@@ -418,11 +466,11 @@ try{$("#jDate").value=new Date().toISOString().slice(0,10)}catch(e){}
 
 /* ---------- timers ---------- */
 let t30=30,t30i=null;const t30el=$("#t30");
-function t30Render(){t30el.textContent=t30;t30el.className="big"+(t30<=0?" alarm":t30<=10?" warn":"")}
+function t30Render(){const cls=t30<=0?" alarm":t30<=10?" warn":"";t30el.textContent=t30;t30el.className="big"+cls;const f=$("#t30Fill");f.style.strokeDashoffset=471-471*t30/30;f.setAttribute("class","fill"+cls)}
 $("#t30Start").addEventListener("click",()=>{clearInterval(t30i);t30=30;t30Render();const start=Date.now();t30i=setInterval(()=>{t30=30-Math.floor((Date.now()-start)/1000);t30Render();if(t30<=0){clearInterval(t30i);t30=0;t30Render()}},200);$("#t30Last").textContent=""});
 $("#t30Reset").addEventListener("click",()=>{clearInterval(t30i);if(t30>0&&t30<30)$("#t30Last").textContent="Ответ за "+(30-t30)+" сек, впиши в скобках";t30=30;t30Render()});
 let sAcc=0,sStart=null,sI=null;const sEl=$("#tSess");
-function sRender(){const t=Math.floor((sAcc+(sStart?Date.now()-sStart:0))/1000);sEl.textContent=String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")}
+function sRender(){const t=Math.floor((sAcc+(sStart?Date.now()-sStart:0))/1000);sEl.textContent=String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0");$("#tsFill").style.strokeDashoffset=471-471*((t%60)/60)}
 $("#tsStart").addEventListener("click",()=>{if(sStart)return;sStart=Date.now();sI=setInterval(sRender,500)});
 $("#tsPause").addEventListener("click",()=>{if(!sStart)return;sAcc+=Date.now()-sStart;sStart=null;clearInterval(sI);sRender()});
 $("#tsReset").addEventListener("click",()=>{sAcc=0;sStart=null;clearInterval(sI);sRender()});

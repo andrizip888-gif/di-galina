@@ -1,0 +1,476 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0;font-family:system-ui,sans-serif;font-size:14px}img{max-width:100%}[hidden]{display:none!important}</style>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.14.1/firebase-database-compat.js"></script>
+<script src="firebase-config.js"></script>
+</head>
+<body>
+<title>Стажировка DI: Галина</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Golos+Text:wght@400;500;600;700&family=Vollkorn:wght@600;700&display=swap">
+<style>
+/* Layout: one column tracker, sticky header with progress, tab bar; module cards as a vertical route with milestones. */
+:root{
+  --bg:#f2f5f4; --surface:#ffffff; --surface-2:#e8eeec; --fg:#15211f; --muted:#5b6b68; --line:#cfd9d6;
+  --accent:#0d6f69; --accent-fg:#ffffff; --accent-soft:#d6ebe8;
+  --ok:#1f7a3e; --ok-soft:#dbeedf; --warn:#9a6a00; --warn-soft:#f6ecd0; --bad:#a3342c; --bad-soft:#f5dcd9;
+  --display:"Vollkorn",Georgia,serif; --body:"Golos Text",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --radius:10px;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0f1716; --surface:#172220; --surface-2:#1f2d2a; --fg:#e7eeec; --muted:#9fb0ac; --line:#2e3e3a;
+  --accent:#4fb9b0; --accent-fg:#0b1413; --accent-soft:#17403c;
+  --ok:#6fcf8a; --ok-soft:#173d26; --warn:#e6b84a; --warn-soft:#3d3010; --bad:#f08a80; --bad-soft:#4a211d;
+  color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0f1716; --surface:#172220; --surface-2:#1f2d2a; --fg:#e7eeec; --muted:#9fb0ac; --line:#2e3e3a;
+  --accent:#4fb9b0; --accent-fg:#0b1413; --accent-soft:#17403c;
+  --ok:#6fcf8a; --ok-soft:#173d26; --warn:#e6b84a; --warn-soft:#3d3010; --bad:#f08a80; --bad-soft:#4a211d;
+  color-scheme:dark }
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--fg);font-family:var(--body);font-size:15px;line-height:1.5;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0 48px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--bg)}
+.wrap{max-width:1000px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);text-wrap:balance;margin:0;line-height:1.2}
+h1{font-size:1.9rem;font-weight:700}
+h2{font-size:1.35rem;font-weight:700}
+h3{font-size:1.1rem;font-weight:600}
+p{margin:0}
+a{color:var(--accent)}
+button{font:inherit;cursor:pointer}
+.btn{border:1px solid var(--line);background:var(--surface);color:var(--fg);padding:7px 12px;border-radius:8px;font-weight:500}
+.btn:hover{border-color:var(--accent)}
+.btn.primary{background:var(--accent);color:var(--accent-fg);border-color:var(--accent)}
+.btn.small{padding:4px 9px;font-size:.85rem}
+.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,.tab:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:9;background:var(--bg);padding-block:14px 10px;border-bottom:1px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.toprow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.eyebrow{font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.sync{font-size:.8rem;color:var(--muted);display:flex;align-items:center;gap:6px}
+.sync .dot{width:8px;height:8px;border-radius:50%;background:var(--warn)}
+.sync.ok .dot{background:var(--ok)}
+.sync.bad .dot{background:var(--bad)}
+.progress{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center}
+.bar{height:8px;background:var(--surface-2);border-radius:99px;overflow:hidden}
+.bar>i{display:block;height:100%;background:var(--accent);width:0;transition:width .4s}
+.stats{font-size:.85rem;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tabs{display:flex;gap:4px;overflow-x:auto;scrollbar-width:none}
+.tab{border:0;background:transparent;color:var(--muted);padding:8px 12px;border-radius:8px;font-weight:600;white-space:nowrap}
+.tab[aria-selected="true"]{background:var(--accent-soft);color:var(--fg)}
+main{padding-block:20px}
+section[hidden]{display:none}
+.panel{display:flex;flex-direction:column;gap:18px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:16px}
+.notice{border-left:3px solid var(--warn);background:var(--warn-soft);padding:10px 12px;border-radius:6px;font-size:.9rem}
+.notice.bad{border-color:var(--bad);background:var(--bad-soft)}
+.notice.ok{border-color:var(--ok);background:var(--ok-soft)}
+.route{display:flex;flex-direction:column;gap:12px}
+.milestone{display:flex;align-items:center;gap:12px;padding:10px 14px;border:1px dashed var(--line);border-radius:var(--radius);color:var(--muted);font-size:.92rem}
+.milestone b{color:var(--fg)}
+.milestone input{margin-left:auto}
+.mod{background:var(--surface);border:1px solid var(--line);border-radius:var(--radius)}
+.mod>summary{list-style:none;cursor:pointer;padding:14px 16px;display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center}
+.mod>summary::-webkit-details-marker{display:none}
+.num{font-family:var(--display);font-size:1.3rem;font-weight:700;color:var(--accent);min-width:34px}
+.mod .t{display:flex;flex-direction:column;gap:2px;min-width:0}
+.mod .t small{color:var(--muted);font-size:.82rem}
+.pill{font-size:.75rem;font-weight:600;padding:3px 9px;border-radius:99px;background:var(--surface-2);color:var(--muted);white-space:nowrap}
+.pill.work{background:var(--warn-soft);color:var(--warn)}
+.pill.done{background:var(--ok-soft);color:var(--ok)}
+.mod .body{padding:4px 16px 16px;display:grid;gap:14px;border-top:1px solid var(--line)}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+code.cmd{font-family:ui-monospace,Menlo,Consolas,monospace;background:var(--surface-2);padding:2px 7px;border-radius:5px;font-size:.88rem}
+.steps{display:grid;gap:6px}
+.step{display:grid;grid-template-columns:auto 1fr;gap:10px;align-items:start;padding:7px 8px;border-radius:7px}
+.step:has(input:checked){background:var(--ok-soft)}
+.step input{margin-top:3px;width:17px;height:17px}
+.step .n{color:var(--muted);font-size:.8rem}
+ul.plain{margin:0;padding-left:18px;display:grid;gap:4px}
+label.f{display:grid;gap:4px;font-size:.85rem;color:var(--muted)}
+input[type=text],input[type=date],input[type=number],select,textarea{font:inherit;color:var(--fg);background:var(--surface);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;min-width:0}
+textarea{min-height:90px;resize:vertical}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.kpi{background:var(--surface-2);border-radius:8px;padding:12px}
+.kpi b{display:block;font-family:var(--display);font-size:1.6rem;font-variant-numeric:tabular-nums}
+.kpi span{font-size:.8rem;color:var(--muted)}
+.kpi.ok{outline:2px solid var(--ok)}
+.tablewrap{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:.88rem}
+th,td{text-align:left;padding:7px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-size:.75rem;text-transform:uppercase;letter-spacing:.05em;color:var(--muted)}
+td.num{font-variant-numeric:tabular-nums;text-align:right}
+.timer{display:grid;gap:12px;justify-items:center;text-align:center}
+.timer .big{font-family:var(--display);font-size:4rem;font-weight:700;font-variant-numeric:tabular-nums;line-height:1}
+.timer .big.alarm{color:var(--bad)}
+.timer .big.warn{color:var(--warn)}
+ol.setup{margin:0;padding-left:20px;display:grid;gap:12px}
+ol.setup li{padding-left:4px}
+ol.setup li b{display:block}
+.copybox{position:relative;background:var(--surface-2);border-radius:8px;padding:12px;max-height:260px;overflow:auto;white-space:pre-wrap;font-size:.85rem;line-height:1.45}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);background:var(--fg);color:var(--bg);padding:9px 14px;border-radius:8px;font-size:.9rem;opacity:0;pointer-events:none;transition:opacity .2s;z-index:20}
+.toast.show{opacity:1}
+.muted{color:var(--muted);font-size:.88rem}
+.cardbox{display:grid;gap:8px}
+details.sub>summary{cursor:pointer;font-weight:600;list-style:none}
+details.sub>summary::-webkit-details-marker{display:none}
+details.sub>summary::before{content:"▸ ";color:var(--muted)}
+details.sub[open]>summary::before{content:"▾ "}
+@media (prefers-reduced-motion: reduce){.bar>i{transition:none}}
+@media (max-width:520px){h1{font-size:1.5rem}.mod>summary{grid-template-columns:auto 1fr;}.mod>summary .pill{grid-column:2}}
+</style>
+
+<div class="wrap">
+<header class="top">
+  <div class="toprow">
+    <div>
+      <div class="eyebrow">DI Phuket Property · стажировка брокера</div>
+      <h1>Стажировка DI: Галина</h1>
+    </div>
+    <div class="sync" id="sync"><span class="dot"></span><span id="syncText">Подключение…</span></div>
+  </div>
+  <div class="progress">
+    <div class="bar"><i id="barFill"></i></div>
+    <div class="stats" id="stats">0 из 11 модулей</div>
+  </div>
+  <nav class="tabs" role="tablist" id="tabs">
+    <button class="tab" role="tab" data-tab="route" aria-selected="true">Маршрут</button>
+    <button class="tab" role="tab" data-tab="journal" aria-selected="false">Журнал практики</button>
+    <button class="tab" role="tab" data-tab="timers" aria-selected="false">Таймеры</button>
+    <button class="tab" role="tab" data-tab="setup" aria-selected="false">Настройка</button>
+    <button class="tab" role="tab" data-tab="help" aria-selected="false">Если сбился</button>
+  </nav>
+</header>
+
+<main>
+<div id="access" class="notice" hidden></div>
+
+<section id="tab-route" class="panel">
+  <div class="card">
+    <h2>Как этим пользоваться</h2>
+    <p class="muted" style="margin-top:6px">Модули идут по порядку сверху вниз. Открой модуль, отправь его команду тренеру в ChatGPT, пройди шесть шагов и отметь их здесь. Результат каждого модуля сдаётся в рабочую тетрадь компании, список «что сдать» есть в каждом модуле. Андрей видит эту же страницу.</p>
+    <div class="grid2" style="margin-top:12px">
+      <label class="f">Дата первого Zoom с наставником<input type="date" id="dFirst"></label>
+      <label class="f">Дата аттестации<input type="date" id="dCert"></label>
+    </div>
+  </div>
+  <div class="route" id="route"></div>
+</section>
+
+<section id="tab-journal" class="panel" hidden>
+  <div class="card">
+    <h2>Журнал практики с AI</h2>
+    <p class="muted" style="margin-top:6px">До первого Zoom нужно не меньше 2 часов практики и 3 полных кейса ресторана. После каждой сессии добавь строку: минуты и баллы тебе называет тренер (команда ЖУРНАЛ).</p>
+    <div class="grid3" style="margin-top:12px">
+      <div class="kpi" id="kHours"><b>0,0</b><span>часов практики (нужно ≥ 2)</span></div>
+      <div class="kpi" id="kCases"><b>0</b><span>полных кейсов ресторана (нужно ≥ 3)</span></div>
+      <div class="kpi" id="kRe"><b>0</b><span>кейсов недвижимости</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <h3>Новая строка</h3>
+    <div class="grid2" style="margin-top:10px">
+      <label class="f">Дата<input type="date" id="jDate"></label>
+      <label class="f">Упражнение / кейс<select id="jType">
+        <option>Контакт, тренировка</option><option>Контакт, экзамен</option>
+        <option>Ресторан, тренировка</option><option>Ресторан, кейс 1</option><option>Ресторан, кейс 2</option><option>Ресторан, кейс 3</option><option>Ресторан, кейс 4</option>
+        <option>Эталон, задание</option><option>Кейс недвижимости</option><option>Z1</option><option>Z2</option><option>Z3</option><option>Цепочка Z2+Z3</option>
+        <option>Дрилл</option><option>Пробная аттестация</option><option>Разбор записи</option><option>Материалы компании</option><option>Другое</option></select></label>
+      <label class="f">Фокус попытки<input type="text" id="jFocus" placeholder="что тренировала"></label>
+      <label class="f">Время, мин<input type="number" id="jMin" min="1" step="1"></label>
+      <label class="f">Балл до<input type="text" id="jBefore"></label>
+      <label class="f">Балл после<input type="text" id="jAfter"></label>
+      <label class="f">Ссылка на чат или имя скриншота<input type="text" id="jLink"></label>
+      <label class="f">Статус<select id="jStatus"><option>Готово</option><option>В работе</option></select></label>
+    </div>
+    <div class="row" style="margin-top:12px"><button class="btn primary" id="jAdd">Добавить строку</button><span class="muted" id="jHint"></span></div>
+  </div>
+  <div class="card">
+    <div class="row" style="justify-content:space-between">
+      <h3>Строки</h3>
+      <div class="row"><button class="btn small" id="jCopy">Скопировать для блока 5 тетради</button></div>
+    </div>
+    <p class="muted" style="margin-top:4px">Скопированный текст вставляется в блок 5 тетради сразу в ячейки.</p>
+    <div class="tablewrap" style="margin-top:10px"><table><thead><tr><th>Дата</th><th>Упражнение</th><th>Фокус</th><th>Мин</th><th>До</th><th>После</th><th>Ссылка</th><th>Статус</th><th></th></tr></thead><tbody id="jBody"><tr><td colspan="9" class="muted">Пока пусто. Первая строка появится после первой сессии с тренером.</td></tr></tbody></table></div>
+  </div>
+</section>
+
+<section id="tab-timers" class="panel" hidden>
+  <div class="grid2">
+    <div class="card timer">
+      <h3>30 секунд на контакт</h3>
+      <div class="big" id="t30">30</div>
+      <p class="muted">Кадр появился: старт. Своё время впиши в конце реплики, например «(18 сек)».</p>
+      <div class="row"><button class="btn primary" id="t30Start">Старт</button><button class="btn" id="t30Reset">Сброс</button></div>
+      <p class="muted" id="t30Last"></p>
+    </div>
+    <div class="card timer">
+      <h3>Секундомер сессии</h3>
+      <div class="big" id="tSess">00:00</div>
+      <p class="muted">Запускай на всю сессию с тренером. В конце сделай скриншот для блока 7 тетради.</p>
+      <div class="row"><button class="btn primary" id="tsStart">Старт</button><button class="btn" id="tsPause">Пауза</button><button class="btn" id="tsReset">Сброс</button><button class="btn" id="tsToJournal">Минуты в журнал</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="tab-setup" class="panel" hidden>
+  <div class="card">
+    <h2>Настройка ChatGPT, один раз</h2>
+    <ol class="setup" style="margin-top:12px">
+      <li><b>Файлы.</b> Скачай и сохрани в одну папку: <a href="files/DI_Тренер_Опорный_документ.docx">опорный документ тренера</a>, <a href="files/Методичка_по_этапам_продаж.docx">методичка по этапам продаж</a>, <a href="files/Практические_задания.docx">практические задания</a>, <a href="https://docs.google.com/document/d/1IwVUOt3XTqM3tavHcEA037q8VxIs3H3b9URBuzDgL5g/edit" target="_blank" rel="noopener">промт компании «Тренер по продажам»</a> (открой и сохрани через «Файл», «Скачать», «Word» или «PDF»). В эту же папку складывай скриншоты.</li>
+      <li><b>Создай проект.</b> В ChatGPT слева нажми «Новый проект» (New project), назови «DI Тренер».</li>
+      <li><b>Вставь инструкции.</b> Меню проекта «•••», затем «Настройки проекта» (Project settings), поле «Инструкции». Скопируй текст кнопкой ниже, вставь целиком, сохрани.</li>
+      <li><b>Загрузи файлы.</b> Кнопка «Добавить файлы» в проекте: четыре файла из пункта 1. Если получится сохранить базу знаний академии в PDF (на сайте Ctrl+P, «Сохранить как PDF»), добавь её пятой. Если нет, тренер будет помечать факты о рынке словами «уточнить у наставника», это нормально.</li>
+      <li><b>Первый чат.</b> Внутри проекта открой новый чат и отправь одно слово: <code class="cmd">СТАРТ</code>. Дальше тренер ведёт сам, по одному вопросу.</li>
+      <li><b>Новый чат на каждый модуль.</b> В конце модуля тренер выдаёт карточку прогресса. Вставь её в модуль на вкладке «Маршрут» и в начало следующего чата вместе с командой <code class="cmd">ВСТАВЛЯЮ КАРТОЧКУ</code>.</li>
+    </ol>
+  </div>
+  <div class="card cardbox">
+    <div class="row" style="justify-content:space-between"><h3>Инструкции проекта (около 7 700 знаков, лимит поля 8 000)</h3><button class="btn primary small" id="copyPrompt">Скопировать инструкции</button></div>
+    <div class="copybox" id="promptBox"></div>
+  </div>
+  <div class="card cardbox">
+    <h3>Команды, которые пригодятся</h3>
+    <div class="tablewrap"><table><thead><tr><th>Команда</th><th>Когда</th></tr></thead><tbody id="cmdBody"></tbody></table></div>
+  </div>
+</section>
+
+<section id="tab-help" class="panel" hidden>
+  <div class="card cardbox">
+    <h2>Если тренер сбился</h2>
+    <p class="muted">ChatGPT в длинном чате иногда забывает правила. Нажми на строку, скопируй фразу и отправь тренеру.</p>
+    <div class="tablewrap"><table><thead><tr><th>Что случилось</th><th>Что написать</th></tr></thead><tbody id="fixBody"></tbody></table></div>
+  </div>
+  <div class="card cardbox">
+    <h3>Если страшно или неловко</h3>
+    <p class="muted">Отправь тренеру <code class="cmd">СТРАШНО</code>. Он задаст один вопрос и даст короткое упражнение. Это часть программы, не отклонение от неё.</p>
+  </div>
+</section>
+</main>
+</div>
+<div class="toast" id="toast"></div>
+
+<script type="text/plain" id="prompt-text">
+Ты AI-тренер стажёра-брокера компании DI Phuket Property (премиальная недвижимость на Пхукете). Стажёр: Галина. Твоя задача: провести её через всю программу стажировки по файлу «DI_Тренер_Опорный_документ» в этом проекте, чтобы на живых Zoom с наставником и на аттестации она уверенно и своими словами показывала стандарт компании. Говори только по-русски.
+
+ИСТОЧНИКИ. Опорный документ в проекте задаёт программу, протоколы, базу знаний компании, примеры и работу с барьерами. Перед каждым модулем открывай в нём часть В (цикл), часть Г (карточка прогресса), часть Д (программа), часть Е (база знаний и протоколы), часть Ж (примеры), часть З (барьеры), часть И (движок кейсов), часть К (команды). Приоритет источников: методичка компании, затем протоколы заданий, затем рабочая тетрадь, затем эталонный Zoom и система трёх Zoom, затем спецификация тренера, затем слова наставника, которые приносит Галина, затем дополнительные файлы (база знаний, транскрипты), затем общие знания о продажах в последнюю очередь.
+
+ГЛАВНАЯ АКСИОМА. Мы продаём не каталог и не застройщика, а решение задачи клиента. Стандарт DI: жёсткий каркас этапов (подготовка, контакт, рамка, диагностика, критерии, резюме, презентация, сомнения, следующий шаг, сопровождение) при естественной речи без заученного скрипта. Брокер советник, а не отправитель прайса; управляет без давления; честность важнее эффектности.
+
+ПРОГРАММА. Модули идут по порядку: 0 старт и настройка; 1 каркас продаж по методичке; 2 пять установлений контакта; 3 ресторан без меню; 4 эталонный Zoom №1 и шесть заданий по нему; 5 готовность к первому Zoom (проверка тетради: не меньше 2 часов практики, не меньше 3 кейсов ресторана, блоки 3–7, финальный отчёт); затем живой Zoom с наставником; 6 день 1 (фокус после Zoom, свои формулировки по 8 этапам, банк личных фраз: 3 контакта, 10 вопросов, 2 резюме, 3 перехода, 5 вопросов о сомнениях, 2 фиксации); 7 день 2 (система трёх Zoom, переходы, кейсы Z1, Z2, Z3, цепочка, разбор записи); 8 подготовка к аттестации (пробная аттестация по 10 критериям дня 4); затем аттестация у наставника; 9 после аттестации (рефлексия, доработка); X любое новое задание наставника.
+
+ЦИКЛ КАЖДОГО МОДУЛЯ, шесть шагов строго по порядку: 1 объяснение (что, зачем, механика, критерии, типичные ошибки, не больше одного экрана за раз); 2 показ на примерах из части Ж, слабая и сильная версия с объяснением функции, примеры всегда отличаются от экзаменационных ситуаций; 3 страхи и барьеры (один вопрос «что здесь напрягает», работа по части З, не дольше 10 минут); 4 тренировка (облегчённый формат, обратная связь без баллов после каждой попытки, переигровка сразу); 5 экзамен строго по протоколу компании, без подсказок до завершения попытки, баллы 0–3 по каждому критерию, при любом балле ниже 2 немедленная переигровка того же момента, готовую фразу не даёшь до её переигровки, каждый критерий ниже 2 переигрывается отдельно от самого рычажного момента, баллы после переигровки заменяют прежние, зачёт только когда все критерии не ниже 2; перед итоговой таблицей один раз просишь её самооценку списком по всем критериям; 6 оформление: текст для ячеек тетради в порядке колонок, строки журнала практики, выводы и инсайты по правилу «наблюдение, откуда, что изменю», карточка прогресса по форме части Г, напоминание о скриншотах, команда следующего модуля.
+
+ЖЁСТКИЕ ПРАВИЛА.
+1. Один вопрос за раз, и у тебя, и когда ты играешь клиента. Клиент отвечает только на то, что спросили.
+2. Факты о рынке (цены, доходность, налоги, формы владения, квоты, сроки, условия застройщиков) только из загруженной базы знаний компании или слов наставника. Нет источника: говоришь «уточнить у наставника или в базе знаний». Учебные цифры в кейсах помечаешь словами «учебная цифра». Цифры из эталонного Zoom цитируешь как слова брокера из записи, не как факт.
+3. Стандарт DI выше любых техник продаж: давление, дожим, искусственный дефицит, обещание доходности, продавливание бюджета это ошибки, за них снижаешь балл.
+4. Сначала её попытка, потом твоя помощь. На экзамене подсказок нет. После слабой переигровки даёшь функциональную подсказку (что должна делать фраза), после третьей слабой попытки не больше двух примеров и просишь её версию.
+5. Скрытый профиль клиента не раскрываешь до рекомендации Галины.
+6. Не клонируешь слова эталонного брокера, оцениваешь функцию фразы. Её формулировка в её словах лучше копии.
+7. Не фабрикуешь измерения: время по её секундомеру, паузы и интонацию в тексте не оцениваешь.
+8. Помнишь всё сказанное в чате, не переспрашиваешь. Ведёшь профиль брокера (ошибки, сильные приёмы, барьеры) и тайно перепроверяешь прошлые ошибки в следующих кейсах, называя перенос в ревью.
+9. Хвалишь только за конкретное действие с цитатой. Ошибки называешь прямо. Завышенная оценка сегодня равна провалу на аттестации.
+10. Коротко и по делу. Реплика клиента в кейсе одна-три фразы. Оценка по критериям с цитатами. Таблицы только по протоколу. Без восторгов и воды.
+11. Картинки для упражнения на контакт: если генерация доступна, создаёшь реалистичный кадр Zoom (один человек, фон, обстановка, время суток, детали). Если недоступна или лимит исчерпан, даёшь описание кадра из 4–6 предложений с наблюдаемыми деталями, не подсказывая, какую использовать.
+12. Барьеры: ты тренер, не психолог. Нормализуешь, переводишь в поведение, даёшь упражнение на 2–3 минуты. Не интерпретируешь личность, не ставишь диагнозов.
+
+КОМАНДЫ (полный список в части К): СТАРТ, ПЛАН, МОДУЛЬ N, ОБЪЯСНИ, ПОКАЖИ ПРИМЕР, СТРАШНО, ТРЕНИРОВКА, ЭКЗАМЕН, ПЯТЬ УСТАНОВЛЕНИЙ КОНТАКТА, РЕСТОРАН БЕЗ МЕНЮ, ПЕРЕИГРАТЬ, СТОП, ИТОГИ, КАРТОЧКА, ВСТАВЛЯЮ КАРТОЧКУ, ЖУРНАЛ, ТЕТРАДЬ, ПРОВЕРЬ ФАКТ, КЕЙС, Z1, Z2, Z3, ЦЕПОЧКА, ДРИЛЛ [этап], РАЗБОР ЗАПИСИ, ПРОБНАЯ АТТЕСТАЦИЯ, ДОРАБОТКА, НОВОЕ ЗАДАНИЕ, ОТЧЁТ, ПИСЬМО. Если Галина пишет без команды, понимаешь намерение по смыслу и называешь, какой режим включил.
+
+НАЧАЛО РАБОТЫ. Новый чат без карточки прогресса: предложи команду СТАРТ или спроси, с какого модуля продолжить. Новый чат с вставленной карточкой (текст со слов «КАРТОЧКА ПРОГРЕССА» считается командой ВСТАВЛЯЮ КАРТОЧКУ): принимаешь её как текущее состояние, подтверждаешь в двух предложениях и спрашиваешь, с чего продолжить. Экзаменационный режим раньше своего места в программе: называешь, что не пройдено и что это изменит, не блокируешь, если настаивает. Если чат стал длинным (больше одного модуля), сам предлагаешь выдать карточку и открыть новый чат.
+
+ЭКЗАМЕНЫ ПО ПРОТОКОЛАМ КОМПАНИИ. Пять установлений контакта: пять раундов, в каждом новый кадр; после кадра пишешь только «У вас есть 30 секунд. Как вы установите контакт?» и ждёшь; оцениваешь 0–3 по скорости (её время), наблюдательности, персонализации, естественности, уместности, развитию диалога; итоговая таблица и три зоны развития. Ресторан без меню: три кейса, ты гость со скрытым профилем, начинаешь одной естественной репликой, отвечаешь только на вопрос, на допрос и повторы реагируешь как живой человек; по команде «готова дать рекомендацию» просишь блюдо и обоснование словами гостя; раскрываешь профиль; оцениваешь 0–3 по глубине диагностики, качеству вопросов, одному вопросу за раз, естественности, развитию ответов, предугадыванию, рекомендации, аргументации; тест причинности «зачем спросила, что ответ менял»; итоговая таблица и три навыка. Кейсы с недвижимостью и пробная аттестация: карточка до встречи не больше семи строк, скрытый профиль по части И, оценка по десяти критериям дня 4 (критичные: диагностика, критерии, резюме, сомнения, следующий шаг), логика итога: любой ноль это пересдача, 24 из 30 и выше это допуск, на пробной аттестации дополнительно ни одного критичного критерия ниже 2; пропущенные развилки; переигровка самого рычажного момента.
+
+</script>
+
+
+<script>
+(function(){
+"use strict";
+const STD=["Объяснение: что это, зачем, критерии, ошибки","Примеры: слабая и сильная версия","Барьеры: что напрягает, упражнение","Тренировка с подсказками после попытки","Экзамен по протоколу, все критерии не ниже 2","Оформление в тетрадь, журнал, карточка прогресса"];
+const MODULES=[
+ {id:"m0",n:"0",title:"Старт и настройка",cmd:"СТАРТ",time:"30–40 мин",goal:"Знакомство с тренером, проверка файлов, план по датам, стартовая карточка.",
+  steps:["Проект в ChatGPT создан, инструкции и файлы загружены (вкладка «Настройка»)","Отправила СТАРТ и ответила на вопросы тренера","Получила план по датам","Заполнила шапку листа «До Zoom»","Получила стартовую карточку и вставила её ниже"],
+  submit:["Лист «До Zoom»: шапка (имя, дата, дата первого Zoom)"]},
+ {id:"m1",n:"1",title:"Каркас продаж по методичке",cmd:"МОДУЛЬ 1",time:"около 2 ч",goal:"Десять этапов, майндсет, механика разговора, двенадцать ошибок. Устный экзамен: своими словами задача, результат, действие и ошибка по каждому этапу.",
+  steps:STD,submit:["Лист «До Zoom», блок 2: «Мои выводы / формулировки» и «Что нужно уточнить» по 8 этапам, статус «Готово»","Блок 1: статус строк 2 и 3 (записи, методичка)"]},
+ {id:"m2",n:"2",title:"Пять установлений контакта",cmd:"МОДУЛЬ 2",exam:"ПЯТЬ УСТАНОВЛЕНИЙ КОНТАКТА",time:"около 1,5 ч",goal:"Заметить деталь за 2–3 секунды и начать Zoom живой уместной репликой. Экзамен: 5 кадров, 6 критериев 0–3, переигровки.",
+  steps:STD,submit:["Блок 3: пять строк (скриншот, что заметила, финальная реплика)","Блок 5: строки журнала (тренировка и экзамен отдельно)","Для отчёта: таблица 5 строк с первой репликой и обратной связью, три вывода"]},
+ {id:"m3",n:"3",title:"Ресторан без меню",cmd:"МОДУЛЬ 3",exam:"РЕСТОРАН БЕЗ МЕНЮ",time:"около 2 ч",goal:"Диагностика без каталога: один вопрос за раз, скрытая потребность, предугадывание, одна рекомендация словами гостя. Экзамен: 3 кейса, 8 критериев.",
+  steps:STD,submit:["Блок 4: три строки (кто клиент, что хотел, что выяснила, рекомендация, почему подходит, что хорошо, что улучшить). Все три строки обязательны: счётчик тетради считает заполненные","Блок 5: строки журнала","Для отчёта: колонка «что упустила» и три вывода"]},
+ {id:"m4",n:"4",title:"Эталонный Zoom №1 и шесть заданий",cmd:"МОДУЛЬ 4",time:"около 2 ч",goal:"Разбор Zoom Павла, банк 10 вопросов, 6 рисков. Шесть заданий: открытие 90 секунд, 10 связок, резюме за 45 секунд, район через два критерия, честный ответ на неизвестное, закрытие с двумя датами.",
+  steps:STD,submit:["Лист «Эталон»: «Моя версия» по 13 этапам, «Моя формулировка» по 10 вопросам","Лист «Эталон», практика: 6 заданий с оценкой 0–3, «Проверено с GPT: Да», «Готово: Да»","Блок 1: статус строки 4 (примеры Zoom)"]},
+ {id:"m5",n:"5",title:"Готовность к первому Zoom",cmd:"МОДУЛЬ 5",time:"около 1 ч",goal:"Проверка всех требований листа «До Zoom», финальный отчёт, самопроверка «Готово».",
+  steps:["Блок 1: все шесть строк «Готово»","Часы ≥ 2 и кейсов ресторана ≥ 3 (вкладка «Журнал»)","Блок 6: 5–8 инсайтов по правилу «наблюдение, откуда, что изменю»","Финальный отчёт собран (команда ОТЧЁТ), ссылка в блоке 7","Скриншоты таймера и чатов в блоке 7","Самопроверка переведена в «Готово», карточка «готова к первому Zoom»"],
+  submit:["Лист «До Zoom» целиком, самопроверка «Готово»","Список вопросов наставнику из колонок «Что нужно уточнить»"]},
+ {id:"zoom1",milestone:true,title:"Живой Zoom с наставником",hint:"Обратная связь наставника записывается в «Фокус после Zoom» на листах «День 1» и «День 2»."},
+ {id:"m6",n:"6",title:"День 1. Свои формулировки и банк фраз",cmd:"МОДУЛЬ 6",time:"3–4 ч",goal:"Фокус после Zoom с наставником, свои реплики по 8 этапам, банк личных фраз (3 контакта, 10 вопросов, 2 резюме, 3 перехода, 5 вопросов о сомнениях, 2 фиксации), каждый проверен в дрилле. Экзамен: полный кейс недвижимости.",
+  steps:STD,submit:["Лист «День 1»: три строки фокуса","Методичка: «Мои реплики / скрипты», «Мои пометки», статус «Готово» по 8 этапам","Банк формулировок: все шесть строк, «Проверено: Да», «Лучшая формулировка», «Готово: Да»","Домашнее задание: строки журнала, инсайты (до 6), подтверждение практики"]},
+ {id:"m7",n:"7",title:"День 2. Система трёх Zoom",cmd:"МОДУЛЬ 7",time:"4–5 ч",goal:"Zoom №1 продаёт Пхукет, №2 проект и модель, №3 юнит и депозит. Свои переходы по каждому этапу, кейсы Z1, затем цепочка Z2 и Z3 с одним клиентом, разбор записи прошлого Zoom.",
+  steps:STD,submit:["Лист «День 2»: три строки фокуса","Три таблицы Zoom: «Мои реплики / переходы», «Мои пометки», статус «Отработано», оценка 0–3","Домашнее задание: три кейса строками журнала","Разбор записи: три ответа","Инсайты (до 7), подтверждение практики"]},
+ {id:"m8",n:"8",title:"Пробная аттестация",cmd:"МОДУЛЬ 8",exam:"ПРОБНАЯ АТТЕСТАЦИЯ",time:"2–3 ч",goal:"Новый кейс назначенного Zoom, 10 критериев дня 4, сначала самооценка, потом оценка тренера. Критичные: диагностика, критерии, резюме, сомнения, следующий шаг. Любой ноль равен пересдаче, 24 из 30 равно допуску.",
+  steps:STD,submit:["Черновик самооценки и «Что было сделано» остаётся в карточке прогресса, в лист «День 4» пока ничего не вносится","Карточка «готова к аттестации»"]},
+ {id:"cert",milestone:true,title:"Аттестация у наставника",hint:"Оценки наставника и финальное решение вносятся в лист «День 4»."},
+ {id:"m9",n:"9",title:"После аттестации",cmd:"МОДУЛЬ 9",time:"1–2 ч",goal:"Сверка самооценки с оценкой наставника, рефлексия по четырём вопросам, при пересдаче точечная доработка проваленных критериев (команда ДОРАБОТКА).",
+  steps:["Оценки наставника и финальное решение внесены в тетрадь","Сверка самооценки с оценкой наставника","Личная рефлексия: четыре ответа","Точечная доработка: дриллы по проваленным критериям (если нужно)","Инсайты (до 4), подтверждение практики","План первых реальных Zoom или пересдача назначена"],
+  submit:["Лист «День 4»: шапка, самооценка по реальному кейсу, «Что было сделано», оценки и слова наставника как есть","Рефлексия (4 ответа), таблица доработки, инсайты"]},
+ {id:"mx",n:"X",title:"Новое задание от наставника",cmd:"НОВОЕ ЗАДАНИЕ",time:"по заданию",goal:"Любое задание, которого нет в тетради (например, на день 3), проходит те же шесть шагов. Что сдать и критерии уточняются у наставника.",
+  steps:STD,submit:["В формате, который попросил наставник"]}
+];
+const COMMANDS=[["СТАРТ","Первый чат"],["МОДУЛЬ N","Начать модуль"],["СТРАШНО","Если что-то напрягает или неловко"],["ПЕРЕИГРАТЬ","Повторить момент ещё раз"],["СТОП","Пауза и сводка, где остановились"],["КАРТОЧКА","Карточка прогресса сейчас"],["ВСТАВЛЯЮ КАРТОЧКУ","В начале нового чата, вместе с карточкой"],["ЖУРНАЛ","Строки для журнала за сессию"],["ТЕТРАДЬ","Текст для ячеек тетради по модулю"]];
+const FIXES=[["Выдал несколько кадров сразу или раскрыл профиль гостя заранее","Стоп. Строго по протоколу: один кадр, потом только фраза про 30 секунд, и жди моего ответа."],["В описании кадра подсказка, что заметить","Не подсказывай, что замечать. Только то, что видно и слышно в кадре."],["Гость вываливает всё сразу","Ты в роли гостя: отвечай коротко и только на мой вопрос, как живой человек."],["Оценки подозрительно мягкие","Оценивай строже, как требовательный тренер DI. Мне нужна честная обратная связь."],["Забыл поставить баллы","Поставь баллы 0–3 по каждому критерию, как в протоколе."],["Дал готовую фразу до моей попытки","Не давай готовых формулировок, пока я не попробую сама."],["Называет цифры о рынке как факт","Это из базы знаний или учебная цифра? Если нет источника, пометь «уточнить у наставника»."],["Хочу переиграть, хотя баллы проходные","Хочу переиграть этот момент ещё раз. Оцени заново по тем же критериям."],["Чат длинный, тренер путается","Выдай карточку прогресса, я открою новый чат."]];
+
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const toast=m=>{const t=$("#toast");t.textContent=m;t.classList.add("show");clearTimeout(t._h);t._h=setTimeout(()=>t.classList.remove("show"),1800)};
+async function copyText(text){try{await navigator.clipboard.writeText(text);toast("Скопировано")}catch(e){const ta=document.createElement("textarea");ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand("copy");toast("Скопировано")}catch(_){toast("Выдели текст и скопируй вручную")}ta.remove()}}
+
+/* ---------- state ---------- */
+let state={modules:{},milestones:{},dates:{},plan:"",cards:{}};
+let journal=[]; // {id,date,type,focus,min,before,after,link,status,ts}
+let db=null,canWrite=null,localMode=true;
+const LS="di-galina-v1";
+function lsRead(){try{const r=localStorage.getItem(LS);if(r){const o=JSON.parse(r);state=Object.assign(state,o.state||{});journal=o.journal||[]}}catch(e){}}
+function lsWrite(){try{localStorage.setItem(LS,JSON.stringify({state,journal}))}catch(e){}}
+
+let writeChain=Promise.resolve();
+function queue(fn){writeChain=writeChain.then(fn).catch(e=>{console.warn(e);if(e&&/PERMISSION|invalid_argument/i.test(String(e.code||e.message))){setReadOnly()}else{toast("Не сохранилось, попробуй ещё раз")}});return writeChain}
+function saveState(){lsWrite();if(db&&canWrite!==false){queue(()=>db.doc("state/main").set({...state,updatedAt:Date.now()}))}}
+function saveJournalEntry(e){if(db&&canWrite!==false){queue(()=>db.doc("journal/"+e.id).set(e))}else{lsWrite()}}
+function deleteJournalEntry(id){if(db&&canWrite!==false){queue(()=>db.doc("journal/"+id).delete())}else{journal=journal.filter(x=>x.id!==id);lsWrite();renderJournal()}}
+
+function setReadOnly(){canWrite=false;const a=$("#access");a.hidden=false;a.className="notice";a.textContent="Хранилище не принимает записи. Напиши Андрею: нужно проверить правила базы.";document.querySelectorAll("input,select,textarea,button.btn.primary").forEach(el=>{if(!el.closest("#tab-timers")&&el.id!=="copyPrompt")el.disabled=true})}
+function setSync(cls,text){const s=$("#sync");s.className="sync "+cls;$("#syncText").textContent=text}
+
+/* ---------- route ---------- */
+function modStatus(m){const st=(state.modules[m.id]||{}).steps||[];const done=st.filter(Boolean).length;if(done===0)return["Не начато",""];if(done>=m.steps.length)return["Сдан","done"];return["В работе "+done+"/"+m.steps.length,"work"]}
+function renderRoute(){
+  const r=$("#route");const open=new Set([...r.querySelectorAll("details.mod[open]")].map(d=>d.dataset.id));
+  let html="";
+  for(const m of MODULES){
+    if(m.milestone){const chk=!!state.milestones[m.id];html+=`<div class="milestone"><b>${esc(m.title)}</b><span>${esc(m.hint)}</span><label style="margin-left:auto;display:flex;gap:6px;align-items:center;white-space:nowrap"><input type="checkbox" data-ms="${m.id}" ${chk?"checked":""}> прошёл</label></div>`;continue}
+    const [label,cls]=modStatus(m);const ms=state.modules[m.id]||{};const steps=ms.steps||[];
+    html+=`<details class="mod" data-id="${m.id}" ${open.has(m.id)?"open":""}><summary><span class="num">${m.n}</span><span class="t"><span>${esc(m.title)}</span><small>${esc(m.time)} · команда <code class="cmd">${esc(m.cmd)}</code></small></span><span class="pill ${cls}">${label}</span></summary>
+    <div class="body">
+      <p>${esc(m.goal)}</p>
+      <div class="row"><button class="btn small" data-copy="${esc(m.cmd)}">Скопировать «${esc(m.cmd)}»</button>${m.exam?`<button class="btn small" data-copy="${esc(m.exam)}">Скопировать «${esc(m.exam)}»</button>`:""}</div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Шаги</div><div class="steps">${m.steps.map((s,i)=>`<label class="step"><input type="checkbox" data-step="${m.id}:${i}" ${steps[i]?"checked":""}><span><span class="n">${i+1}.</span> ${esc(s)}</span></label>`).join("")}</div></div>
+      <div><div class="eyebrow" style="margin-bottom:6px">Что сдать в тетрадь</div><ul class="plain">${m.submit.map(s=>`<li>${esc(s)}</li>`).join("")}</ul></div>
+      <details class="sub" ${ (state.cards[m.id]||"").trim()?"open":""}><summary>Карточка прогресса от тренера</summary>
+        <textarea data-card="${m.id}" placeholder="Вставь сюда текст карточки прогресса в конце модуля" style="margin-top:8px">${esc(state.cards[m.id]||"")}</textarea>
+        <div class="row" style="margin-top:6px"><button class="btn small" data-copycard="${m.id}">Скопировать карточку для нового чата</button><span class="muted" data-cardsaved="${m.id}"></span></div>
+      </details>
+    </div></details>`;
+  }
+  r.innerHTML=html;
+  const total=MODULES.filter(m=>!m.milestone).length;const done=MODULES.filter(m=>!m.milestone&&modStatus(m)[0]==="Сдан").length;
+  $("#barFill").style.width=Math.round(done/total*100)+"%";$("#stats").textContent=done+" из "+total+" модулей";
+  $("#dFirst").value=state.dates.first||"";$("#dCert").value=state.dates.cert||"";
+}
+$("#route").addEventListener("change",e=>{
+  const t=e.target;
+  if(t.dataset.step){const [id,i]=t.dataset.step.split(":");const m=state.modules[id]||(state.modules[id]={});const steps=m.steps||(m.steps=[]);steps[+i]=t.checked;saveState();renderRoute()}
+  if(t.dataset.ms){state.milestones[t.dataset.ms]=t.checked;saveState()}
+});
+$("#route").addEventListener("click",e=>{
+  const b=e.target.closest("button");if(!b)return;
+  if(b.dataset.copy)copyText(b.dataset.copy);
+  if(b.dataset.copycard){const txt=(state.cards[b.dataset.copycard]||"").trim();if(!txt){toast("Карточка пока пустая");return}copyText("ВСТАВЛЯЮ КАРТОЧКУ\n\n"+txt)}
+});
+let cardTimers={};
+$("#route").addEventListener("input",e=>{const t=e.target;if(!t.dataset.card)return;const id=t.dataset.card;state.cards[id]=t.value;clearTimeout(cardTimers[id]);cardTimers[id]=setTimeout(()=>{saveState();const s=document.querySelector(`[data-cardsaved="${id}"]`);if(s){s.textContent="сохранено";setTimeout(()=>s.textContent="",1500)}},700)});
+for(const [id,key] of [["dFirst","first"],["dCert","cert"]]) $("#"+id).addEventListener("change",e=>{state.dates[key]=e.target.value;saveState()});
+
+/* ---------- journal ---------- */
+const fmtH=m=>(m/60).toFixed(1).replace(".",",");
+function renderJournal(){
+  const rows=[...journal].sort((a,b)=>(a.date||"").localeCompare(b.date||"")||(a.ts||0)-(b.ts||0));
+  const mins=rows.reduce((s,r)=>s+(+r.min||0),0);
+  const cases=rows.filter(r=>/^Ресторан, кейс/.test(r.type)&&r.status==="Готово").length;
+  const re=rows.filter(r=>/^(Кейс недвижимости|Z1|Z2|Z3|Цепочка|Пробная)/.test(r.type)).length;
+  const kh=$("#kHours"),kc=$("#kCases");kh.querySelector("b").textContent=fmtH(mins);kc.querySelector("b").textContent=cases;$("#kRe b").textContent=re;
+  kh.classList.toggle("ok",mins>=120);kc.classList.toggle("ok",cases>=3);
+  const tb=$("#jBody");
+  if(!rows.length){tb.innerHTML='<tr><td colspan="9" class="muted">Пока пусто. Первая строка появится после первой сессии с тренером.</td></tr>';return}
+  tb.innerHTML=rows.map(r=>`<tr><td>${esc(r.date)}</td><td>${esc(r.type)}</td><td>${esc(r.focus)}</td><td class="num">${esc(r.min)}</td><td>${esc(r.before)}</td><td>${esc(r.after)}</td><td style="word-break:break-all">${esc(r.link)}</td><td>${esc(r.status)}</td><td><button class="btn small" data-del="${r.id}" title="Удалить">×</button></td></tr>`).join("");
+}
+$("#jAdd").addEventListener("click",()=>{
+  const e={id:"j"+Date.now().toString(36)+Math.random().toString(36).slice(2,6),date:$("#jDate").value,type:$("#jType").value,focus:$("#jFocus").value.trim(),min:+$("#jMin").value||0,before:$("#jBefore").value.trim(),after:$("#jAfter").value.trim(),link:$("#jLink").value.trim(),status:$("#jStatus").value,ts:Date.now()};
+  if(!e.date||!e.min){$("#jHint").textContent="Нужны дата и минуты";return}
+  $("#jHint").textContent="";journal.push(e);saveJournalEntry(e);renderJournal();$("#jFocus").value="";$("#jMin").value="";$("#jBefore").value="";$("#jAfter").value="";$("#jLink").value="";toast("Строка добавлена")
+});
+$("#jBody").addEventListener("click",e=>{const b=e.target.closest("button[data-del]");if(b)deleteJournalEntry(b.dataset.del)});
+$("#jCopy").addEventListener("click",()=>{
+  const groups={};
+  for(const r of journal){const k=r.type.replace(/, (тренировка|экзамен|кейс \d)$/,"");const g=groups[k]||(groups[k]={date:r.date,type:k,focus:[],min:0,before:[],after:[],link:[],status:"Готово"});g.date=g.date<r.date?r.date:g.date;g.min+=+r.min||0;if(r.focus)g.focus.push(r.focus);if(r.before)g.before.push(r.before);if(r.after)g.after.push(r.after);if(r.link)g.link.push(r.link);if(r.status!=="Готово")g.status="В работе"}
+  const lines=Object.values(groups).map(g=>[g.date,g.type,[...new Set(g.focus)].join("; "),g.min,g.before.join(", "),g.after.join(", "),[...new Set(g.link)].join("; "),g.status].join("\t"));
+  if(!lines.length){toast("Журнал пустой");return}
+  if(lines.length>5)toast("Строк больше пяти: объедини ещё, в блоке 5 только пять строк");
+  copyText(lines.join("\n"))
+});
+try{$("#jDate").value=new Date().toISOString().slice(0,10)}catch(e){}
+
+/* ---------- timers ---------- */
+let t30=30,t30i=null;const t30el=$("#t30");
+function t30Render(){t30el.textContent=t30;t30el.className="big"+(t30<=0?" alarm":t30<=10?" warn":"")}
+$("#t30Start").addEventListener("click",()=>{clearInterval(t30i);t30=30;t30Render();const start=Date.now();t30i=setInterval(()=>{t30=30-Math.floor((Date.now()-start)/1000);t30Render();if(t30<=0){clearInterval(t30i);t30=0;t30Render()}},200);$("#t30Last").textContent=""});
+$("#t30Reset").addEventListener("click",()=>{clearInterval(t30i);if(t30>0&&t30<30)$("#t30Last").textContent="Ответ за "+(30-t30)+" сек, впиши в скобках";t30=30;t30Render()});
+let sAcc=0,sStart=null,sI=null;const sEl=$("#tSess");
+function sRender(){const t=Math.floor((sAcc+(sStart?Date.now()-sStart:0))/1000);sEl.textContent=String(Math.floor(t/60)).padStart(2,"0")+":"+String(t%60).padStart(2,"0")}
+$("#tsStart").addEventListener("click",()=>{if(sStart)return;sStart=Date.now();sI=setInterval(sRender,500)});
+$("#tsPause").addEventListener("click",()=>{if(!sStart)return;sAcc+=Date.now()-sStart;sStart=null;clearInterval(sI);sRender()});
+$("#tsReset").addEventListener("click",()=>{sAcc=0;sStart=null;clearInterval(sI);sRender()});
+$("#tsToJournal").addEventListener("click",()=>{const m=Math.round((sAcc+(sStart?Date.now()-sStart:0))/60000);$("#jMin").value=m||"";showTab("journal");toast(m+" мин подставлено в форму")});
+
+/* ---------- setup & help ---------- */
+const promptText=(document.getElementById("prompt-text")||{}).textContent||"";
+$("#promptBox").textContent=promptText.trim();
+$("#copyPrompt").addEventListener("click",()=>copyText(promptText.trim()));
+$("#cmdBody").innerHTML=COMMANDS.map(([c,w])=>`<tr><td><code class="cmd">${esc(c)}</code></td><td>${esc(w)}</td></tr>`).join("");
+$("#fixBody").innerHTML=FIXES.map(([a,b])=>`<tr style="cursor:pointer" data-copy="${esc(b)}"><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("");
+$("#fixBody").addEventListener("click",e=>{const tr=e.target.closest("tr[data-copy]");if(tr)copyText(tr.dataset.copy)});
+
+/* ---------- tabs ---------- */
+function showTab(name){document.querySelectorAll(".tab").forEach(t=>t.setAttribute("aria-selected",t.dataset.tab===name?"true":"false"));document.querySelectorAll("main > section").forEach(s=>s.hidden=(s.id!=="tab-"+name));try{history.replaceState(null,"","#"+name)}catch(e){}}
+$("#tabs").addEventListener("click",e=>{const t=e.target.closest(".tab");if(t)showTab(t.dataset.tab)});
+const h=(location.hash||"").slice(1);if(["route","journal","timers","setup","help"].includes(h))showTab(h);
+
+/* ---------- boot ---------- */
+lsRead();renderRoute();renderJournal();
+(function(){
+  const cfg=window.DI_FIREBASE_CONFIG;
+  if(!cfg||!cfg.databaseURL||!window.firebase){setSync("bad","Общее сохранение пока не подключено, данные только в этом браузере");return}
+  let fdb;
+  try{firebase.initializeApp(cfg);fdb=firebase.database()}catch(e){setSync("bad","Хранилище не подключилось");return}
+  const ROOT="di-galina";
+  db={
+    doc(path){const ref=fdb.ref(ROOT+"/"+path);return{
+      set:data=>ref.set(data), delete:()=>ref.remove(),
+      onSnapshot:(next,err)=>{ref.on("value",snap=>next({exists:snap.exists(),data:()=>snap.val()}),e=>err&&err({code:e.code||"unavailable"}));return()=>ref.off()}
+    }},
+    collection(path){const ref=fdb.ref(ROOT+"/"+path);return{
+      onSnapshot:(next,err)=>{ref.on("value",snap=>{const v=snap.val()||{};next({docs:Object.keys(v).map(k=>({data:()=>v[k]}))})},e=>err&&err({code:e.code||"unavailable"}));return()=>ref.off()}
+    }}
+  };
+  canWrite=true;localMode=false;
+  fdb.ref(".info/connected").on("value",s=>{if(s.val())setSync("ok","Общая страница: видно и Галине, и Андрею");else setSync("","Нет связи, изменения отправятся при подключении")});
+  db.doc("state/main").onSnapshot(snap=>{
+    if(snap.exists){const data=snap.data()||{};const focused=document.activeElement;const fid=focused&&focused.dataset?focused.dataset.card:null;
+      state={modules:data.modules||{},milestones:data.milestones||{},dates:data.dates||{},plan:data.plan||"",cards:data.cards||{}};
+      if(fid){state.cards[fid]=focused.value}
+      renderRoute();if(fid){const el=document.querySelector(`[data-card="${fid}"]`);if(el)el.focus()}
+    }else{queue(()=>db.doc("state/main").set({...state,updatedAt:Date.now()}))}
+  },err=>{setSync("bad","Связь с хранилищем потеряна: "+err.code)});
+  db.collection("journal").onSnapshot(snap=>{journal=snap.docs.map(x=>x.data());renderJournal()},err=>{setSync("bad","Журнал не читается: "+err.code)});
+})();
+})();
+</script>
+
+</body>
+</html>
